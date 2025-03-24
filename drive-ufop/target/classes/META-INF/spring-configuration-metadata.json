@@ -1,0 +1,47 @@
+{
+  "groups": [
+    {
+      "name": "ufop",
+      "type": "com.clemdrive.ufop.autoconfiguration.UFOPProperties",
+      "sourceType": "com.clemdrive.ufop.autoconfiguration.UFOPProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "ufop.aliyun",
+      "type": "com.clemdrive.ufop.config.AliyunConfig",
+      "sourceType": "com.clemdrive.ufop.autoconfiguration.UFOPProperties"
+    },
+    {
+      "name": "ufop.bucket-name",
+      "type": "java.lang.String",
+      "sourceType": "com.clemdrive.ufop.autoconfiguration.UFOPProperties"
+    },
+    {
+      "name": "ufop.local-storage-path",
+      "type": "java.lang.String",
+      "sourceType": "com.clemdrive.ufop.autoconfiguration.UFOPProperties"
+    },
+    {
+      "name": "ufop.minio",
+      "type": "com.clemdrive.ufop.config.MinioConfig",
+      "sourceType": "com.clemdrive.ufop.autoconfiguration.UFOPProperties"
+    },
+    {
+      "name": "ufop.qiniuyun",
+      "type": "com.clemdrive.ufop.config.QiniuyunConfig",
+      "sourceType": "com.clemdrive.ufop.autoconfiguration.UFOPProperties"
+    },
+    {
+      "name": "ufop.storage-type",
+      "type": "java.lang.String",
+      "sourceType": "com.clemdrive.ufop.autoconfiguration.UFOPProperties"
+    },
+    {
+      "name": "ufop.thumb-image",
+      "type": "com.clemdrive.ufop.domain.ThumbImage",
+      "sourceType": "com.clemdrive.ufop.autoconfiguration.UFOPProperties"
+    }
+  ],
+  "hints": []
+}
