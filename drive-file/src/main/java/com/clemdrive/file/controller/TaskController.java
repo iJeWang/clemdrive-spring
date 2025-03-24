@@ -6,7 +6,7 @@ import com.clemdrive.file.api.IShareFileService;
 import com.clemdrive.file.component.FileDealComp;
 import com.clemdrive.file.domain.ShareFile;
 import com.clemdrive.file.domain.UserFile;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.service.UserFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class TaskController {
         for (int i = 0; i < userfileList.size(); i++) {
             try {
 
-                QiwenFile ufopFile = new QiwenFile(userfileList.get(i).getFilePath(), userfileList.get(i).getFileName(), userfileList.get(i).getIsDir() == 1);
+                DriveFile ufopFile = new DriveFile(userfileList.get(i).getFilePath(), userfileList.get(i).getFileName(), userfileList.get(i).getIsDir() == 1);
                 fileDealComp.restoreParentFilePath(ufopFile, userfileList.get(i).getUserId());
                 if (i % 1000 == 0 || i == userfileList.size() - 1) {
                     log.info("目录健康检查进度：" + (i + 1) + "/" + userfileList.size());
@@ -58,7 +58,7 @@ public class TaskController {
         List<UserFile> list = userFileService.list();
         for (UserFile userFile : list) {
             try {
-                String path = QiwenFile.formatPath(userFile.getFilePath());
+                String path = DriveFile.formatPath(userFile.getFilePath());
                 if (!userFile.getFilePath().equals(path)) {
                     userFile.setFilePath(path);
                     userFileService.updateById(userFile);
@@ -74,7 +74,7 @@ public class TaskController {
         List<ShareFile> list = shareFileService.list();
         for (ShareFile shareFile : list) {
             try {
-                String path = QiwenFile.formatPath(shareFile.getShareFilePath());
+                String path = DriveFile.formatPath(shareFile.getShareFilePath());
                 shareFile.setShareFilePath(path);
                 shareFileService.updateById(shareFile);
             } catch (Exception e) {

@@ -14,7 +14,7 @@ import com.clemdrive.file.domain.*;
 import com.clemdrive.file.dto.file.DownloadFileDTO;
 import com.clemdrive.file.dto.file.PreviewDTO;
 import com.clemdrive.file.dto.file.UploadFileDTO;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.mapper.*;
 import com.clemdrive.file.vo.file.UploadFileVo;
 import com.clemdrive.ufop.constant.StorageTypeEnum;
@@ -92,16 +92,16 @@ public class FiletransferService implements IFiletransferService {
 
         String filePath = uploadFileDTO.getFilePath();
         String relativePath = uploadFileDTO.getRelativePath();
-        QiwenFile qiwenFile = null;
+        DriveFile driveFile = null;
         if (relativePath.contains("/")) {
-            qiwenFile = new QiwenFile(filePath, relativePath, false);
+            driveFile = new DriveFile(filePath, relativePath, false);
         } else {
-            qiwenFile = new QiwenFile(filePath, uploadFileDTO.getFilename(), false);
+            driveFile = new DriveFile(filePath, uploadFileDTO.getFilename(), false);
         }
 
         if (list != null && !list.isEmpty()) {
             FileBean file = list.get(0);
-            UserFile userFile = new UserFile(qiwenFile, SessionUtil.getUserId(), file.getFileId());
+            UserFile userFile = new UserFile(driveFile, SessionUtil.getUserId(), file.getFileId());
 
             try {
                 userFileMapper.insert(userFile);
@@ -112,9 +112,9 @@ public class FiletransferService implements IFiletransferService {
             }
 
             if (relativePath.contains("/")) {
-                QiwenFile finalQiwenFile = qiwenFile;
+                DriveFile finalDriveFile = driveFile;
                 exec.execute(() -> {
-                    fileDealComp.restoreParentFilePath(finalQiwenFile, SessionUtil.getUserId());
+                    fileDealComp.restoreParentFilePath(finalDriveFile, SessionUtil.getUserId());
                 });
 
             }
@@ -136,9 +136,9 @@ public class FiletransferService implements IFiletransferService {
                     uploadTask.setIdentifier(uploadFileDTO.getIdentifier());
                     uploadTask.setUploadTime(DateUtil.getCurrentTime());
                     uploadTask.setUploadStatus(UploadFileStatusEnum.UNCOMPLATE.getCode());
-                    uploadTask.setFileName(qiwenFile.getNameNotExtend());
-                    uploadTask.setFilePath(qiwenFile.getParent());
-                    uploadTask.setExtendName(qiwenFile.getExtendName());
+                    uploadTask.setFileName(driveFile.getNameNotExtend());
+                    uploadTask.setFilePath(driveFile.getParent());
+                    uploadTask.setExtendName(driveFile.getExtendName());
                     uploadTask.setUserId(SessionUtil.getUserId());
                     uploadTaskMapper.insert(uploadTask);
                 }
@@ -174,11 +174,11 @@ public class FiletransferService implements IFiletransferService {
         for (int i = 0; i < uploadFileResultList.size(); i++) {
             UploadFileResult uploadFileResult = uploadFileResultList.get(i);
             String relativePath = uploadFileDto.getRelativePath();
-            QiwenFile qiwenFile = null;
+            DriveFile driveFile = null;
             if (relativePath.contains("/")) {
-                qiwenFile = new QiwenFile(uploadFileDto.getFilePath(), relativePath, false);
+                driveFile = new DriveFile(uploadFileDto.getFilePath(), relativePath, false);
             } else {
-                qiwenFile = new QiwenFile(uploadFileDto.getFilePath(), uploadFileDto.getFilename(), false);
+                driveFile = new DriveFile(uploadFileDto.getFilePath(), uploadFileDto.getFilename(), false);
             }
 
             if (UploadFileStatusEnum.SUCCESS.equals(uploadFileResult.getStatus())) {
@@ -191,7 +191,7 @@ public class FiletransferService implements IFiletransferService {
                     fileBean = fileMapper.selectOne(new QueryWrapper<FileBean>().lambda().eq(FileBean::getIdentifier, fileBean.getIdentifier()));
                 }
 
-                UserFile userFile = new UserFile(qiwenFile, userId, fileBean.getFileId());
+                UserFile userFile = new UserFile(driveFile, userId, fileBean.getFileId());
 
 
                 try {
@@ -217,9 +217,9 @@ public class FiletransferService implements IFiletransferService {
 
 
                 if (relativePath.contains("/")) {
-                    QiwenFile finalQiwenFile = qiwenFile;
+                    DriveFile finalDriveFile = driveFile;
                     exec.execute(() -> {
-                        fileDealComp.restoreParentFilePath(finalQiwenFile, userId);
+                        fileDealComp.restoreParentFilePath(finalDriveFile, userId);
                     });
 
                 }
@@ -251,8 +251,8 @@ public class FiletransferService implements IFiletransferService {
 
             } else if (UploadFileStatusEnum.UNCOMPLATE.equals(uploadFileResult.getStatus())) {
                 UploadTaskDetail uploadTaskDetail = new UploadTaskDetail();
-                uploadTaskDetail.setFilePath(qiwenFile.getParent());
-                uploadTaskDetail.setFilename(qiwenFile.getNameNotExtend());
+                uploadTaskDetail.setFilePath(driveFile.getParent());
+                uploadTaskDetail.setFilename(driveFile.getNameNotExtend());
                 uploadTaskDetail.setChunkNumber(uploadFileDto.getChunkNumber());
                 uploadTaskDetail.setChunkSize((int) uploadFileDto.getChunkSize());
                 uploadTaskDetail.setRelativePath(uploadFileDto.getRelativePath());
@@ -306,8 +306,8 @@ public class FiletransferService implements IFiletransferService {
             downloader.download(httpServletResponse, downloadFile);
         } else {
 
-            QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true);
-            List<UserFile> userFileList = userFileMapper.selectUserFileByLikeRightFilePath(qiwenFile.getPath(), userFile.getUserId());
+            DriveFile driveFile = new DriveFile(userFile.getFilePath(), userFile.getFileName(), true);
+            List<UserFile> userFileList = userFileMapper.selectUserFileByLikeRightFilePath(driveFile.getPath(), userFile.getUserId());
             List<String> userFileIds = userFileList.stream().map(UserFile::getUserFileId).collect(Collectors.toList());
 
             downloadUserFileList(httpServletResponse, userFile.getFilePath(), userFile.getFileName(), userFileIds);
@@ -348,8 +348,8 @@ public class FiletransferService implements IFiletransferService {
                     InputStream inputStream = downloader.getInputStream(downloadFile);
                     BufferedInputStream bis = new BufferedInputStream(inputStream);
                     try {
-                        QiwenFile qiwenFile = new QiwenFile(StrUtil.removePrefix(userFile1.getFilePath(), filePath), userFile1.getFileName() + "." + userFile1.getExtendName(), false);
-                        zos.putNextEntry(new ZipEntry(qiwenFile.getPath()));
+                        DriveFile driveFile = new DriveFile(StrUtil.removePrefix(userFile1.getFilePath(), filePath), userFile1.getFileName() + "." + userFile1.getExtendName(), false);
+                        zos.putNextEntry(new ZipEntry(driveFile.getPath()));
 
                         byte[] buffer = new byte[1024];
                         int i = bis.read(buffer);
@@ -369,9 +369,9 @@ public class FiletransferService implements IFiletransferService {
                         }
                     }
                 } else {
-                    QiwenFile qiwenFile = new QiwenFile(StrUtil.removePrefix(userFile1.getFilePath(), filePath), userFile1.getFileName(), true);
+                    DriveFile driveFile = new DriveFile(StrUtil.removePrefix(userFile1.getFilePath(), filePath), userFile1.getFileName(), true);
                     // 空文件夹的处理
-                    zos.putNextEntry(new ZipEntry(qiwenFile.getPath() + QiwenFile.separator));
+                    zos.putNextEntry(new ZipEntry(driveFile.getPath() + DriveFile.separator));
                     // 没有文件，不需要文件的copy
                     zos.closeEntry();
                 }

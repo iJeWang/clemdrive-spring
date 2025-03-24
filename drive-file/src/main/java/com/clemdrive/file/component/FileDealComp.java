@@ -5,7 +5,6 @@ import cn.hutool.core.util.IdUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.clemdrive.file.domain.*;
 import com.clemdrive.common.util.DateUtil;
 import com.clemdrive.common.util.MusicUtils;
 import com.clemdrive.common.util.security.SessionUtil;
@@ -13,11 +12,12 @@ import com.clemdrive.file.api.IShareFileService;
 import com.clemdrive.file.api.IShareService;
 import com.clemdrive.file.api.IUserService;
 import com.clemdrive.file.config.es.FileSearch;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.domain.*;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.mapper.FileMapper;
 import com.clemdrive.file.mapper.MusicMapper;
 import com.clemdrive.file.mapper.UserFileMapper;
-import com.clemdrive.file.util.QiwenFileUtil;
+import com.clemdrive.file.util.DriveFileUtil;
 import com.clemdrive.file.util.TreeNode;
 import com.clemdrive.ufop.factory.UFOPFactory;
 import com.clemdrive.ufop.operation.copy.Copier;
@@ -139,14 +139,14 @@ public class FileDealComp {
      *
      * @param sessionUserId
      */
-    public void restoreParentFilePath(QiwenFile qiwenFile, String sessionUserId) {
+    public void restoreParentFilePath(DriveFile driveFile, String sessionUserId) {
 
-        if (qiwenFile.isFile()) {
-            qiwenFile = qiwenFile.getParentFile();
+        if (driveFile.isFile()) {
+            driveFile = driveFile.getParentFile();
         }
-        while (qiwenFile.getParent() != null) {
-            String fileName = qiwenFile.getName();
-            String parentFilePath = qiwenFile.getParent();
+        while (driveFile.getParent() != null) {
+            String fileName = driveFile.getName();
+            String parentFilePath = driveFile.getParent();
 
             LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
@@ -156,14 +156,14 @@ public class FileDealComp {
                     .eq(UserFile::getUserId, sessionUserId);
             List<UserFile> userFileList = userFileMapper.selectList(lambdaQueryWrapper);
             if (userFileList.size() == 0) {
-                UserFile userFile = QiwenFileUtil.getQiwenDir(sessionUserId, parentFilePath, fileName);
+                UserFile userFile = DriveFileUtil.getDriveDir(sessionUserId, parentFilePath, fileName);
                 try {
                     userFileMapper.insert(userFile);
                 } catch (Exception e) {
                     //ignore
                 }
             }
-            qiwenFile = new QiwenFile(parentFilePath, true);
+            driveFile = new DriveFile(parentFilePath, true);
         }
     }
 
@@ -181,7 +181,7 @@ public class FileDealComp {
         LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
 
         lambdaQueryWrapper.select(UserFile::getFileName, UserFile::getFilePath)
-                .likeRight(UserFile::getFilePath, QiwenFileUtil.formatLikePath(filePath))
+                .likeRight(UserFile::getFilePath, DriveFileUtil.formatLikePath(filePath))
                 .eq(UserFile::getIsDir, 1)
                 .eq(UserFile::getDeleteFlag, 0)
                 .eq(UserFile::getUserId, sessionUserId)
@@ -218,8 +218,8 @@ public class FileDealComp {
             return treeNode;
         }
 
-        QiwenFile qiwenFile = new QiwenFile(filePath, currentNodeName, true);
-        filePath = qiwenFile.getPath();
+        DriveFile driveFile = new DriveFile(filePath, currentNodeName, true);
+        filePath = driveFile.getPath();
 
         if (!isExistPath(childrenTreeNodes, currentNodeName)) {  //1、判断有没有该子节点，如果没有则插入
             //插入
@@ -435,7 +435,7 @@ public class FileDealComp {
     public boolean isDirExist(String fileName, String filePath, String userId) {
         LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(UserFile::getFileName, fileName)
-                .eq(UserFile::getFilePath, QiwenFile.formatPath(filePath))
+                .eq(UserFile::getFilePath, DriveFile.formatPath(filePath))
                 .eq(UserFile::getUserId, userId)
                 .eq(UserFile::getDeleteFlag, 0)
                 .eq(UserFile::getIsDir, 1);

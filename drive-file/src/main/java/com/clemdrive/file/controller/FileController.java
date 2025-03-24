@@ -9,9 +9,8 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.clemdrive.file.dto.file.*;
 import com.clemdrive.common.anno.MyLog;
-import com.clemdrive.common.exception.QiwenException;
+import com.clemdrive.common.exception.DriveException;
 import com.clemdrive.common.result.RestResult;
 import com.clemdrive.common.util.DateUtil;
 import com.clemdrive.common.util.security.JwtUser;
@@ -23,8 +22,9 @@ import com.clemdrive.file.component.FileDealComp;
 import com.clemdrive.file.config.es.FileSearch;
 import com.clemdrive.file.domain.FileBean;
 import com.clemdrive.file.domain.UserFile;
-import com.clemdrive.file.io.QiwenFile;
-import com.clemdrive.file.util.QiwenFileUtil;
+import com.clemdrive.file.dto.file.*;
+import com.clemdrive.file.io.DriveFile;
+import com.clemdrive.file.util.DriveFileUtil;
 import com.clemdrive.file.util.TreeNode;
 import com.clemdrive.file.vo.file.FileDetailVO;
 import com.clemdrive.file.vo.file.FileListVO;
@@ -52,8 +52,6 @@ import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Tag(name = "file", description = "该接口为文件接口，主要用来做一些文件的基本操作，如创建目录，删除，移动，复制等。")
 @RestController
@@ -165,7 +163,7 @@ public class FileController {
             return RestResult.fail().message("同名文件夹已存在");
         }
 
-        UserFile userFile = QiwenFileUtil.getQiwenDir(userId, filePath, createFoldDto.getFileName());
+        UserFile userFile = DriveFileUtil.getDriveDir(userId, filePath, createFoldDto.getFileName());
 
         userFileService.save(userFile);
         fileDealComp.uploadESByUserFileId(userFile.getUserFileId());
@@ -256,12 +254,12 @@ public class FileController {
                 .eq(UserFile::getUserFileId, renameFileDto.getUserFileId());
         userFileService.update(lambdaUpdateWrapper);
         if (1 == userFile.getIsDir()) {
-            List<UserFile> list = userFileService.selectUserFileByLikeRightFilePath(new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true).getPath(), sessionUserBean.getUserId());
+            List<UserFile> list = userFileService.selectUserFileByLikeRightFilePath(new DriveFile(userFile.getFilePath(), userFile.getFileName(), true).getPath(), sessionUserBean.getUserId());
 
             for (UserFile newUserFile : list) {
-                String escapedPattern = Pattern.quote(new QiwenFile(userFile.getFilePath(), userFile.getFileName(), userFile.getIsDir() == 1).getPath());
+                String escapedPattern = Pattern.quote(new DriveFile(userFile.getFilePath(), userFile.getFileName(), userFile.getIsDir() == 1).getPath());
                 newUserFile.setFilePath(newUserFile.getFilePath().replaceFirst(escapedPattern,
-                        new QiwenFile(userFile.getFilePath(), renameFileDto.getFileName(), userFile.getIsDir() == 1).getPath()));
+                        new DriveFile(userFile.getFilePath(), renameFileDto.getFileName(), userFile.getIsDir() == 1).getPath()));
                 userFileService.updateById(newUserFile);
             }
         }
@@ -328,7 +326,7 @@ public class FileController {
 
         try {
             fileService.unzipFile(unzipFileDto.getUserFileId(), unzipFileDto.getUnzipMode(), unzipFileDto.getFilePath());
-        } catch (QiwenException e) {
+        } catch (DriveException e) {
             return RestResult.fail().message(e.getMessage());
         }
 
@@ -350,8 +348,8 @@ public class FileController {
             String oldfilePath = userFile.getFilePath();
             String fileName = userFile.getFileName();
             if (userFile.isDirectory()) {
-                QiwenFile qiwenFile = new QiwenFile(oldfilePath, fileName, true);
-                if (filePath.startsWith(qiwenFile.getPath() + QiwenFile.separator) || filePath.equals(qiwenFile.getPath())) {
+                DriveFile driveFile = new DriveFile(oldfilePath, fileName, true);
+                if (filePath.startsWith(driveFile.getPath() + DriveFile.separator) || filePath.equals(driveFile.getPath())) {
                     return RestResult.fail().message("原路径与目标路径冲突，不能复制");
                 }
             }
@@ -377,8 +375,8 @@ public class FileController {
         String fileName = userFile.getFileName();
         String extendName = userFile.getExtendName();
         if (StringUtil.isEmpty(extendName)) {
-            QiwenFile qiwenFile = new QiwenFile(oldfilePath, fileName, true);
-            if (newfilePath.startsWith(qiwenFile.getPath() + QiwenFile.separator) || newfilePath.equals(qiwenFile.getPath())) {
+            DriveFile driveFile = new DriveFile(oldfilePath, fileName, true);
+            if (newfilePath.startsWith(driveFile.getPath() + DriveFile.separator) || newfilePath.equals(driveFile.getPath())) {
                 return RestResult.fail().message("原路径与目标路径冲突，不能移动");
             }
         }
@@ -407,8 +405,8 @@ public class FileController {
         for (String userFileId : userFileIdArr) {
             UserFile userFile = userFileService.getById(userFileId);
             if (StringUtil.isEmpty(userFile.getExtendName())) {
-                QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true);
-                if (newfilePath.startsWith(qiwenFile.getPath() + QiwenFile.separator) || newfilePath.equals(qiwenFile.getPath())) {
+                DriveFile driveFile = new DriveFile(userFile.getFilePath(), userFile.getFileName(), true);
+                if (newfilePath.startsWith(driveFile.getPath() + DriveFile.separator) || newfilePath.equals(driveFile.getPath())) {
                     return RestResult.fail().message("原路径与目标路径冲突，不能移动");
                 }
             }
@@ -429,17 +427,17 @@ public class FileController {
 
         List<UserFile> userFileList = userFileService.selectFilePathTreeByUserId(sessionUserBean.getUserId());
         TreeNode resultTreeNode = new TreeNode();
-        resultTreeNode.setLabel(QiwenFile.separator);
+        resultTreeNode.setLabel(DriveFile.separator);
         resultTreeNode.setId(0L);
         long id = 1;
         for (int i = 0; i < userFileList.size(); i++) {
             UserFile userFile = userFileList.get(i);
-            QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), false);
-            String filePath = qiwenFile.getPath();
+            DriveFile driveFile = new DriveFile(userFile.getFilePath(), userFile.getFileName(), false);
+            String filePath = driveFile.getPath();
 
             Queue<String> queue = new LinkedList<>();
 
-            String[] strArr = filePath.split(QiwenFile.separator);
+            String[] strArr = filePath.split(DriveFile.separator);
             for (int j = 0; j < strArr.length; j++) {
                 if (!"".equals(strArr[j]) && strArr[j] != null) {
                     queue.add(strArr[j]);
@@ -450,7 +448,7 @@ public class FileController {
                 continue;
             }
 
-            resultTreeNode = fileDealComp.insertTreeNode(resultTreeNode, id++, QiwenFile.separator, queue);
+            resultTreeNode = fileDealComp.insertTreeNode(resultTreeNode, id++, DriveFile.separator, queue);
 
 
         }
@@ -489,7 +487,7 @@ public class FileController {
 
 
         } catch (Exception e) {
-            throw new QiwenException(999999, "修改文件异常");
+            throw new DriveException(999999, "修改文件异常");
         } finally {
             try {
                 byteArrayInputStream.close();

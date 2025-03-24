@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.clemdrive.common.util.DateUtil;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -66,14 +66,14 @@ public class UserFile {
 
     ;
 
-    public UserFile(QiwenFile qiwenFile, String userId, String fileId) {
+    public UserFile(DriveFile driveFile, String userId, String fileId) {
         this.userFileId = IdUtil.getSnowflakeNextIdStr();
         this.userId = userId;
         this.fileId = fileId;
-        this.filePath = qiwenFile.getParent();
-        this.fileName = qiwenFile.getNameNotExtend();
-        this.extendName = qiwenFile.getExtendName();
-        this.isDir = qiwenFile.isDirectory() ? 1 : 0;
+        this.filePath = driveFile.getParent();
+        this.fileName = driveFile.getNameNotExtend();
+        this.extendName = driveFile.getExtendName();
+        this.isDir = driveFile.isDirectory() ? 1 : 0;
         String currentTime = DateUtil.getCurrentTime();
         this.setUploadTime(currentTime);
         this.setCreateUserId(userId);

@@ -1,10 +1,9 @@
 package com.clemdrive.file.advice;
 
+import com.clemdrive.common.exception.DriveException;
 import com.clemdrive.common.exception.NotLoginException;
-import com.clemdrive.common.exception.QiwenException;
 import com.clemdrive.common.result.RestResult;
 import com.clemdrive.common.result.ResultCodeEnum;
-
 import com.clemdrive.ufop.exception.operation.UploadException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -103,10 +102,10 @@ public class GlobalExceptionHandlerAdvice {
     /**
      * -------- 自定义定异常处理方法 --------
      **/
-    @ExceptionHandler(QiwenException.class)
+    @ExceptionHandler(DriveException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public RestResult error(QiwenException e) {
+    public RestResult error(DriveException e) {
         e.printStackTrace();
         log.error("全局异常捕获：" + e);
         return RestResult.fail().message(e.getMessage()).code(e.getCode());

@@ -26,7 +26,7 @@ mvn clean install
 
 ```xml
 <dependency>
-    <groupId>com.qiwenshare</groupId>
+    <groupId>com.clemdrive</groupId>
     <artifactId>ufop-spring-boot-starter</artifactId>
     <version>{new version}<version>
 </dependency>
@@ -68,7 +68,7 @@ fdfs.tracker-list=127.0.0.1:22122
 ```
 
 其他存储方式可在下方链接查看
-https://pan.qiwenshare.com/docs/config/#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F%E9%85%8D%E7%BD%AE
+https://pan.clemdrive.com/docs/config/#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F%E9%85%8D%E7%BD%AE
 
 除了0-本地存储外，其他存储方式需要配置redis信息
 

@@ -3,23 +3,23 @@ package com.clemdrive.file.io;
 import com.clemdrive.ufop.util.UFOPUtils;
 import org.apache.commons.io.FilenameUtils;
 
-public class QiwenFile {
+public class DriveFile {
 
     private final String path;
     public static final String separator = "/";
     private boolean isDirectory;
 
-    public QiwenFile(String pathname, boolean isDirectory) {
+    public DriveFile(String pathname, boolean isDirectory) {
 //        if (StringUtils.isEmpty(pathname)) {
-//            throw new QiwenException("file name format error，pathname:" + pathname);
+//            throw new DriveException("file name format error，pathname:" + pathname);
 //        }
         this.path = formatPath(pathname);
         this.isDirectory = isDirectory;
     }
 
-    public QiwenFile(String parent, String child, boolean isDirectory) {
+    public DriveFile(String parent, String child, boolean isDirectory) {
 //        if (StringUtils.isEmpty(child)) {
-//            throw new QiwenException("file name format error，parent:" + parent +", child:" + child);
+//            throw new DriveException("file name format error，parent:" + parent +", child:" + child);
 //        }
         if (parent != null) {
             String parentPath = separator.equals(formatPath(parent)) ? "" : formatPath(parent);
@@ -64,9 +64,9 @@ public class QiwenFile {
         return path.substring(0, index);
     }
 
-    public QiwenFile getParentFile() {
+    public DriveFile getParentFile() {
         String parentPath = this.getParent();
-        return new QiwenFile(parentPath, true);
+        return new DriveFile(parentPath, true);
     }
 
     public String getName() {

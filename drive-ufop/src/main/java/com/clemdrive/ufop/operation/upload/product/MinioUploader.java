@@ -7,7 +7,7 @@ import com.clemdrive.ufop.exception.operation.UploadException;
 import com.clemdrive.ufop.operation.upload.Uploader;
 import com.clemdrive.ufop.operation.upload.domain.UploadFile;
 import com.clemdrive.ufop.operation.upload.domain.UploadFileResult;
-import com.clemdrive.ufop.operation.upload.request.QiwenMultipartFile;
+import com.clemdrive.ufop.operation.upload.request.DriveMultipartFile;
 import com.clemdrive.ufop.util.RedisUtil;
 import com.clemdrive.ufop.util.UFOPUtils;
 import io.minio.*;
@@ -18,7 +18,10 @@ import org.apache.commons.io.IOUtils;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -42,39 +45,29 @@ public class MinioUploader extends Uploader {
     public void cancelUpload(UploadFile uploadFile) {
     }
 
-    @Override
-    protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
-
-    }
-
-    @Override
-    protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
-        return null;
-    }
-
-    protected UploadFileResult doUploadFlow(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+    protected UploadFileResult doUploadFlow(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
         UploadFileResult uploadFileResult = new UploadFileResult();
         try {
-            qiwenMultipartFile.getFileUrl(uploadFile.getIdentifier());
-            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
+            driveMultipartFile.getFileUrl(uploadFile.getIdentifier());
+            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), driveMultipartFile.getExtendName());
 
             File tempFile = UFOPUtils.getTempFile(fileUrl);
             File processFile = UFOPUtils.getProcessFile(fileUrl);
 
-            byte[] fileData = qiwenMultipartFile.getUploadBytes();
+            byte[] fileData = driveMultipartFile.getUploadBytes();
 
             writeByteDataToFile(fileData, tempFile, uploadFile);
 
             //判断是否完成文件的传输并进行校验与重命名
             boolean isComplete = checkUploadStatus(uploadFile, processFile);
             uploadFileResult.setFileUrl(fileUrl);
-            uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
-            uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
+            uploadFileResult.setFileName(driveMultipartFile.getFileName());
+            uploadFileResult.setExtendName(driveMultipartFile.getExtendName());
             uploadFileResult.setFileSize(uploadFile.getTotalSize());
             uploadFileResult.setStorageType(StorageTypeEnum.MINIO);
 
             if (uploadFile.getTotalChunks() == 1) {
-                uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
+                uploadFileResult.setFileSize(driveMultipartFile.getSize());
             }
             uploadFileResult.setIdentifier(uploadFile.getIdentifier());
             if (isComplete) {
@@ -114,6 +107,16 @@ public class MinioUploader extends Uploader {
 
 
         return uploadFileResult;
+    }
+
+    @Override
+    protected void doUploadFileChunk(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
+
+    }
+
+    @Override
+    protected UploadFileResult organizationalResults(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
+        return null;
     }
 
 

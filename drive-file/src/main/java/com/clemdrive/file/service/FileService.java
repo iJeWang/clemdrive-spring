@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.clemdrive.common.exception.QiwenException;
+import com.clemdrive.common.exception.DriveException;
 import com.clemdrive.common.operation.FileOperation;
 import com.clemdrive.common.util.DateUtil;
 import com.clemdrive.common.util.security.SessionUtil;
@@ -19,7 +19,7 @@ import com.clemdrive.file.mapper.FileMapper;
 import com.clemdrive.file.mapper.ImageMapper;
 import com.clemdrive.file.mapper.MusicMapper;
 import com.clemdrive.file.mapper.UserFileMapper;
-import com.clemdrive.file.util.QiwenFileUtil;
+import com.clemdrive.file.util.DriveFileUtil;
 import com.clemdrive.file.vo.file.FileDetailVO;
 import com.clemdrive.ufop.factory.UFOPFactory;
 import com.clemdrive.ufop.operation.download.Downloader;
@@ -102,7 +102,7 @@ public class FileService extends ServiceImpl<FileMapper, FileBean> implements IF
         } catch (Exception e) {
             e.printStackTrace();
             log.error("解压失败" + e);
-            throw new QiwenException(500001, "解压异常：" + e.getMessage());
+            throw new DriveException(500001, "解压异常：" + e.getMessage());
         }
 
         if (destFile.exists()) {
@@ -110,8 +110,8 @@ public class FileService extends ServiceImpl<FileMapper, FileBean> implements IF
         }
 
         if (!fileEntryNameList.isEmpty() && unzipMode == 1) {
-            UserFile qiwenDir = QiwenFileUtil.getQiwenDir(userFile.getUserId(), userFile.getFilePath(), userFile.getFileName());
-            userFileMapper.insert(qiwenDir);
+            UserFile driveDir = DriveFileUtil.getDriveDir(userFile.getUserId(), userFile.getFilePath(), userFile.getFileName());
+            userFileMapper.insert(driveDir);
         }
         for (int i = 0; i < fileEntryNameList.size(); i++) {
             String entryName = fileEntryNameList.get(i);

@@ -16,7 +16,7 @@ import com.clemdrive.file.api.IUserFileService;
 import com.clemdrive.file.component.FileDealComp;
 import com.clemdrive.file.domain.RecoveryFile;
 import com.clemdrive.file.domain.UserFile;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.mapper.RecoveryFileMapper;
 import com.clemdrive.file.mapper.UserFileMapper;
 import com.clemdrive.file.vo.file.FileListVO;
@@ -102,8 +102,8 @@ public class UserFileService extends ServiceImpl<UserFileMapper, UserFile> imple
             log.warn(e.getMessage());
         }
         //移动子目录
-        oldfilePath = new QiwenFile(oldfilePath, fileName, true).getPath();
-        newfilePath = new QiwenFile(newfilePath, fileName, true).getPath();
+        oldfilePath = new DriveFile(oldfilePath, fileName, true).getPath();
+        newfilePath = new DriveFile(newfilePath, fileName, true).getPath();
 
         if (userFile.isDirectory()) { //如果是目录，则需要移动子目录
             List<UserFile> list = selectUserFileByLikeRightFilePath(oldfilePath, userId);
@@ -144,8 +144,8 @@ public class UserFileService extends ServiceImpl<UserFileMapper, UserFile> imple
             log.warn(e.getMessage());
         }
 
-        oldfilePath = new QiwenFile(oldfilePath, fileName, true).getPath();
-        newfilePath = new QiwenFile(newfilePath, fileName, true).getPath();
+        oldfilePath = new DriveFile(oldfilePath, fileName, true).getPath();
+        newfilePath = new DriveFile(newfilePath, fileName, true).getPath();
 
 
         if (userFile.isDirectory()) {
@@ -210,7 +210,7 @@ public class UserFileService extends ServiceImpl<UserFileMapper, UserFile> imple
                     .eq(UserFile::getUserFileId, userFileId);
             userFileMapper.update(null, userFileLambdaUpdateWrapper);
 
-            String filePath = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true).getPath();
+            String filePath = new DriveFile(userFile.getFilePath(), userFile.getFileName(), true).getPath();
             updateFileDeleteStateByFilePath(filePath, uuid, sessionUserId);
 
         } else {

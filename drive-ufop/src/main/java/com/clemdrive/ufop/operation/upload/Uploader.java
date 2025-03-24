@@ -3,7 +3,7 @@ package com.clemdrive.ufop.operation.upload;
 import com.clemdrive.ufop.exception.operation.UploadException;
 import com.clemdrive.ufop.operation.upload.domain.UploadFile;
 import com.clemdrive.ufop.operation.upload.domain.UploadFileResult;
-import com.clemdrive.ufop.operation.upload.request.QiwenMultipartFile;
+import com.clemdrive.ufop.operation.upload.request.DriveMultipartFile;
 import com.clemdrive.ufop.util.RedisUtil;
 import com.clemdrive.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
@@ -75,8 +75,8 @@ public abstract class Uploader {
             while (iter.hasNext()) {
                 List<MultipartFile> multipartFileList = request.getFiles(iter.next());
                 for (MultipartFile multipartFile : multipartFileList) {
-                    QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile(multipartFile);
-                    UploadFileResult uploadFileResult = doUploadFlow(qiwenMultipartFile, uploadFile);
+                    DriveMultipartFile driveMultipartFile = new DriveMultipartFile(multipartFile);
+                    UploadFileResult uploadFileResult = doUploadFlow(driveMultipartFile, uploadFile);
                     uploadFileResultList.add(uploadFileResult);
                 }
             }
@@ -87,12 +87,12 @@ public abstract class Uploader {
         return uploadFileResultList;
     }
 
-    protected UploadFileResult doUploadFlow(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+    protected UploadFileResult doUploadFlow(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
 
         UploadFileResult uploadFileResult;
         try {
-            rectifier(qiwenMultipartFile, uploadFile);
-            uploadFileResult = organizationalResults(qiwenMultipartFile, uploadFile);
+            rectifier(driveMultipartFile, uploadFile);
+            uploadFileResult = organizationalResults(driveMultipartFile, uploadFile);
         } catch (Exception e) {
             throw new UploadException(e);
         }
@@ -107,13 +107,13 @@ public abstract class Uploader {
      */
     public abstract void cancelUpload(UploadFile uploadFile);
 
-    protected abstract void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException;
+    protected abstract void doUploadFileChunk(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) throws IOException;
 
-    protected abstract UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile);
+    protected abstract UploadFileResult organizationalResults(DriveMultipartFile driveMultipartFile, UploadFile uploadFile);
 
-    private void rectifier(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
-        String key = "QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":lock";
-        String current_upload_chunk_number = "QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number";
+    private void rectifier(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
+        String key = "DriveUploader:Identifier:" + uploadFile.getIdentifier() + ":lock";
+        String current_upload_chunk_number = "DriveUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number";
 
         redisLock.lock(key);
         try {
@@ -143,15 +143,15 @@ public abstract class Uploader {
                 }
             }
 
-            log.info("文件名{},正在上传第{}块, 共{}块>>>>>>>>>>", qiwenMultipartFile.getMultipartFile().getOriginalFilename(), uploadFile.getChunkNumber(), uploadFile.getTotalChunks());
+            log.info("文件名{},正在上传第{}块, 共{}块>>>>>>>>>>", driveMultipartFile.getMultipartFile().getOriginalFilename(), uploadFile.getChunkNumber(), uploadFile.getTotalChunks());
             if (uploadFile.getChunkNumber() == currentUploadChunkNumber) {
-                doUploadFileChunk(qiwenMultipartFile, uploadFile);
-                log.info("文件名{},第{}块上传成功", qiwenMultipartFile.getMultipartFile().getOriginalFilename(), uploadFile.getChunkNumber());
-                this.redisUtil.getIncr("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
+                doUploadFileChunk(driveMultipartFile, uploadFile);
+                log.info("文件名{},第{}块上传成功", driveMultipartFile.getMultipartFile().getOriginalFilename(), uploadFile.getChunkNumber());
+                this.redisUtil.getIncr("DriveUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
             }
         } catch (Exception e) {
             log.error("第{}块上传失败，自动重试", uploadFile.getChunkNumber());
-            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", String.valueOf(uploadFile.getChunkNumber()), 1000 * 60 * 60);
+            redisUtil.set("DriveUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", String.valueOf(uploadFile.getChunkNumber()), 1000 * 60 * 60);
             throw new UploadException("更新远程文件出错", e);
         } finally {
 
@@ -194,7 +194,7 @@ public abstract class Uploader {
             //第三步 计算偏移量
             long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
             //第四步 获取分片数据
-//            byte[] fileData = qiwenMultipartFile.getUploadBytes();
+//            byte[] fileData = DriveMultipartFile.getUploadBytes();
             //第五步 写入数据
             fileChannel.position(position);
             fileChannel.write(ByteBuffer.wrap(fileData));

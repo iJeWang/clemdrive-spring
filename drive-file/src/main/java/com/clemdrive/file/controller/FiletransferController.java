@@ -16,7 +16,7 @@ import com.clemdrive.file.dto.file.BatchDownloadFileDTO;
 import com.clemdrive.file.dto.file.DownloadFileDTO;
 import com.clemdrive.file.dto.file.PreviewDTO;
 import com.clemdrive.file.dto.file.UploadFileDTO;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.service.StorageService;
 import com.clemdrive.file.vo.file.UploadFileVo;
 import com.clemdrive.ufop.factory.UFOPFactory;
@@ -172,8 +172,8 @@ public class FiletransferController {
             if (userFile.getIsDir() == 0) {
                 userFileIds.add(userFileId);
             } else {
-                QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true);
-                List<UserFile> userFileList = userFileService.selectUserFileByLikeRightFilePath(qiwenFile.getPath(), userFile.getUserId());
+                DriveFile driveFile = new DriveFile(userFile.getFilePath(), userFile.getFileName(), true);
+                List<UserFile> userFileList = userFileService.selectUserFileByLikeRightFilePath(driveFile.getPath(), userFile.getUserId());
                 List<String> userFileIds1 = userFileList.stream().map(UserFile::getUserFileId).collect(Collectors.toList());
                 userFileIds.add(userFile.getUserFileId());
                 userFileIds.addAll(userFileIds1);

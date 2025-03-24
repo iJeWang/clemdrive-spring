@@ -7,7 +7,7 @@ import com.clemdrive.file.api.IRecoveryFileService;
 import com.clemdrive.file.component.FileDealComp;
 import com.clemdrive.file.domain.RecoveryFile;
 import com.clemdrive.file.domain.UserFile;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.mapper.RecoveryFileMapper;
 import com.clemdrive.file.mapper.UserFileMapper;
 import com.clemdrive.file.vo.file.RecoveryFileListVo;
@@ -62,8 +62,8 @@ public class RecoveryFileService extends ServiceImpl<RecoveryFileMapper, Recover
             }
         }
 
-        QiwenFile qiwenFile = new QiwenFile(filePath, true);
-        fileDealComp.restoreParentFilePath(qiwenFile, sessionUserId);
+        DriveFile driveFile = new DriveFile(filePath, true);
+        fileDealComp.restoreParentFilePath(driveFile, sessionUserId);
 
         LambdaQueryWrapper<RecoveryFile> recoveryFileServiceLambdaQueryWrapper = new LambdaQueryWrapper<>();
         recoveryFileServiceLambdaQueryWrapper.eq(RecoveryFile::getDeleteBatchNum, deleteBatchNum);

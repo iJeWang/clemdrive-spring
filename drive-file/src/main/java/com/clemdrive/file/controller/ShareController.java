@@ -6,7 +6,6 @@ import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.clemdrive.file.dto.sharefile.*;
 import com.clemdrive.common.anno.MyLog;
 import com.clemdrive.common.result.RestResult;
 import com.clemdrive.common.util.DateUtil;
@@ -19,7 +18,8 @@ import com.clemdrive.file.component.FileDealComp;
 import com.clemdrive.file.domain.Share;
 import com.clemdrive.file.domain.ShareFile;
 import com.clemdrive.file.domain.UserFile;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.dto.sharefile.*;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.vo.share.ShareFileListVO;
 import com.clemdrive.file.vo.share.ShareFileVO;
 import com.clemdrive.file.vo.share.ShareListVO;
@@ -32,7 +32,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "share", description = "该接口为文件分享接口")
 @RestController
@@ -84,8 +87,8 @@ public class ShareController {
                 return RestResult.fail().message("您只能分享自己的文件");
             }
             if (userFile.getIsDir() == 1) {
-                QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true);
-                List<UserFile> userfileList = userFileService.selectUserFileByLikeRightFilePath(qiwenFile.getPath(), sessionUserBean.getUserId());
+                DriveFile driveFile = new DriveFile(userFile.getFilePath(), userFile.getFileName(), true);
+                List<UserFile> userfileList = userFileService.selectUserFileByLikeRightFilePath(driveFile.getPath(), sessionUserBean.getUserId());
                 for (UserFile userFile1 : userfileList) {
                     ShareFile shareFile1 = new ShareFile();
                     shareFile1.setShareFileId(IdUtil.getSnowflakeNextIdStr());
@@ -137,14 +140,14 @@ public class ShareController {
 
             if (userFile.getIsDir() == 1) {
                 ShareFile shareFile = shareFileService.getOne(new QueryWrapper<ShareFile>().lambda().eq(ShareFile::getUserFileId, userFileId).eq(ShareFile::getShareBatchNum, saveShareFileDTO.getShareBatchNum()));
-                List<ShareFile> shareFileList = shareFileService.list(new QueryWrapper<ShareFile>().lambda().eq(ShareFile::getShareBatchNum, saveShareFileDTO.getShareBatchNum()).likeRight(ShareFile::getShareFilePath, QiwenFile.formatPath(shareFile.getShareFilePath() + "/" + fileName)));
+                List<ShareFile> shareFileList = shareFileService.list(new QueryWrapper<ShareFile>().lambda().eq(ShareFile::getShareBatchNum, saveShareFileDTO.getShareBatchNum()).likeRight(ShareFile::getShareFilePath, DriveFile.formatPath(shareFile.getShareFilePath() + "/" + fileName)));
 
 
                 for (ShareFile shareFile1 : shareFileList) {
                     UserFile userFile1 = userFileService.getById(shareFile1.getUserFileId());
                     userFile1.setUserFileId(IdUtil.getSnowflakeNextIdStr());
                     userFile1.setUserId(userId);
-                    userFile1.setFilePath(userFile1.getFilePath().replaceFirst(QiwenFile.formatPath(filePath + "/" + fileName), QiwenFile.formatPath(savefilePath + "/" + savefileName)));
+                    userFile1.setFilePath(userFile1.getFilePath().replaceFirst(DriveFile.formatPath(filePath + "/" + fileName), DriveFile.formatPath(savefilePath + "/" + savefileName)));
                     saveUserFileList.add(userFile1);
                     log.info("当前文件：" + JSON.toJSONString(userFile1));
                 }

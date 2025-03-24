@@ -230,26 +230,6 @@
     </distributionManagement>
 
 
-    <licenses>
-        <license>
-            <name>MIT</name>
-            <url>https://opensource.org/licenses/MIT</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>MAC</name>
-            <email>1162714483@qq.com</email>
-        </developer>
-    </developers>
-    <scm>
-        <tag>master</tag>
-        <connection>https://gitee.com/qiwen-cloud/clemdrive.git</connection>
-        <developerConnection>https://gitee.com/qiwen-cloud</developerConnection>
-        <url>https://gitee.com/qiwen-cloud/clemdrive.git</url>
-    </scm>
-
     <build>
 
         <pluginManagement>

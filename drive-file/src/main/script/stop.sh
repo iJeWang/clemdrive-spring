@@ -17,7 +17,7 @@ SERVER_NAME=`cat $CONF_DIR/config/application.properties | grep -w "spring.appli
 SERVER_PORT=`cat $CONF_DIR/config/application.properties | grep -w "server.port" | grep -v "#" | awk -F=  'NR==1{print $2}'`
 
 #REM **********************************************************************************************
-LOG_PATH=$DEPLOY_DIR/log/qiwen-file
+LOG_PATH=$DEPLOY_DIR/log/drive-file
 
 if [ "${LOG_PATH}" == "" ] ; then
     LOG_PATH=$PARENT_DIR/logs/${SERVER_NAME}

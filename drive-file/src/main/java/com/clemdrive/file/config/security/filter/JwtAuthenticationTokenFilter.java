@@ -1,7 +1,7 @@
 package com.clemdrive.file.config.security.filter;
 
+import com.clemdrive.common.exception.DriveException;
 import com.clemdrive.common.exception.NotLoginException;
-import com.clemdrive.common.exception.QiwenException;
 import com.clemdrive.file.service.SysParamService;
 import com.clemdrive.file.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -66,7 +66,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String version = sysParamService.getValue("version");
         if (!driveVersion.equals(version)) {
-            throw new QiwenException(999999, "脚本未初始化，请在数据库执行数据初始化脚本，存放路径： '/resources/import.sql'！");
+            throw new DriveException(999999, "脚本未初始化，请在数据库执行数据初始化脚本，存放路径： '/resources/import.sql'！");
         }
         List<String> antWhiteUriList = Arrays.asList(antWhiteUri);
         for (String antWhiteUri : antWhiteUriList) {

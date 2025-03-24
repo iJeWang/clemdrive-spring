@@ -6,7 +6,7 @@ import com.clemdrive.file.api.IFiletransferService;
 import com.clemdrive.file.api.IRecoveryFileService;
 import com.clemdrive.file.domain.FileBean;
 import com.clemdrive.file.domain.UserFile;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.mapper.FileMapper;
 import com.clemdrive.file.mapper.UserFileMapper;
 import com.clemdrive.ufop.factory.UFOPFactory;
@@ -169,16 +169,16 @@ public class AsyncTaskComp {
         }
 
 
-        QiwenFile qiwenFile = null;
+        DriveFile driveFile = null;
         if (unzipMode == 0) {
-            qiwenFile = new QiwenFile(userFile.getFilePath(), entryName, currentFile.isDirectory());
+            driveFile = new DriveFile(userFile.getFilePath(), entryName, currentFile.isDirectory());
         } else if (unzipMode == 1) {
-            qiwenFile = new QiwenFile(userFile.getFilePath() + "/" + userFile.getFileName(), entryName, currentFile.isDirectory());
+            driveFile = new DriveFile(userFile.getFilePath() + "/" + userFile.getFileName(), entryName, currentFile.isDirectory());
         } else if (unzipMode == 2) {
-            qiwenFile = new QiwenFile(filePath, entryName, currentFile.isDirectory());
+            driveFile = new DriveFile(filePath, entryName, currentFile.isDirectory());
         }
 
-        UserFile saveUserFile = new UserFile(qiwenFile, userFile.getUserId(), fileId);
+        UserFile saveUserFile = new UserFile(driveFile, userFile.getUserId(), fileId);
         String fileName = fileDealComp.getRepeatFileName(saveUserFile, saveUserFile.getFilePath());
 
         if (saveUserFile.getIsDir() == 1 && !fileName.equals(saveUserFile.getFileName())) {
@@ -187,7 +187,7 @@ public class AsyncTaskComp {
             saveUserFile.setFileName(fileName);
             userFileMapper.insert(saveUserFile);
         }
-        fileDealComp.restoreParentFilePath(qiwenFile, userFile.getUserId());
+        fileDealComp.restoreParentFilePath(driveFile, userFile.getUserId());
 
         return new AsyncResult<>("saveUnzipFile");
     }

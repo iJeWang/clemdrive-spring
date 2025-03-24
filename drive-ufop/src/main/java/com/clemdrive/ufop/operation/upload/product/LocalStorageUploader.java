@@ -6,7 +6,7 @@ import com.clemdrive.ufop.exception.operation.UploadException;
 import com.clemdrive.ufop.operation.upload.Uploader;
 import com.clemdrive.ufop.operation.upload.domain.UploadFile;
 import com.clemdrive.ufop.operation.upload.domain.UploadFileResult;
-import com.clemdrive.ufop.operation.upload.request.QiwenMultipartFile;
+import com.clemdrive.ufop.operation.upload.request.DriveMultipartFile;
 import com.clemdrive.ufop.util.UFOPUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -18,24 +18,25 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class LocalStorageUploader extends Uploader {
 
     public static Map<String, String> FILE_URL_MAP = new HashMap<>();
 
-    protected UploadFileResult doUploadFlow(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+    protected UploadFileResult doUploadFlow(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
         UploadFileResult uploadFileResult = new UploadFileResult();
         try {
-            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
+            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), driveMultipartFile.getExtendName());
             if (StringUtils.isNotEmpty(FILE_URL_MAP.get(uploadFile.getIdentifier()))) {
                 fileUrl = FILE_URL_MAP.get(uploadFile.getIdentifier());
             } else {
                 FILE_URL_MAP.put(uploadFile.getIdentifier(), fileUrl);
             }
             String tempFileUrl = fileUrl + "_tmp";
-            String confFileUrl = fileUrl.replace("." + qiwenMultipartFile.getExtendName(), ".conf");
+            String confFileUrl = fileUrl.replace("." + driveMultipartFile.getExtendName(), ".conf");
 
             File file = new File(UFOPUtils.getStaticPath() + fileUrl);
             File tempFile = new File(UFOPUtils.getStaticPath() + tempFileUrl);
@@ -49,7 +50,7 @@ public class LocalStorageUploader extends Uploader {
                 //第三步 计算偏移量
                 long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
                 //第四步 获取分片数据
-                byte[] fileData = qiwenMultipartFile.getUploadBytes();
+                byte[] fileData = driveMultipartFile.getUploadBytes();
                 //第五步 写入数据
                 fileChannel.position(position);
                 fileChannel.write(ByteBuffer.wrap(fileData));
@@ -62,13 +63,13 @@ public class LocalStorageUploader extends Uploader {
             //判断是否完成文件的传输并进行校验与重命名
             boolean isComplete = checkUploadStatus(uploadFile, confFile);
             uploadFileResult.setFileUrl(fileUrl);
-            uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
-            uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
+            uploadFileResult.setFileName(driveMultipartFile.getFileName());
+            uploadFileResult.setExtendName(driveMultipartFile.getExtendName());
             uploadFileResult.setFileSize(uploadFile.getTotalSize());
             uploadFileResult.setStorageType(StorageTypeEnum.LOCAL);
 
             if (uploadFile.getTotalChunks() == 1) {
-                uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
+                uploadFileResult.setFileSize(driveMultipartFile.getSize());
             }
             uploadFileResult.setIdentifier(uploadFile.getIdentifier());
             if (isComplete) {
@@ -118,12 +119,12 @@ public class LocalStorageUploader extends Uploader {
     }
 
     @Override
-    protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+    protected void doUploadFileChunk(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
 
     }
 
     @Override
-    protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+    protected UploadFileResult organizationalResults(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
         return null;
     }
 

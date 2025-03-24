@@ -1,6 +1,6 @@
 package com.clemdrive.common.util.security;
 
-import com.clemdrive.common.exception.QiwenException;
+import com.clemdrive.common.exception.DriveException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,7 +37,7 @@ public class SessionUtil {
     public static String getUserId() {
         JwtUser session = getSession();
         if (session == null) {
-            throw new QiwenException("用户未登录");
+            throw new DriveException("用户未登录");
         }
         return session.getUserId();
     }

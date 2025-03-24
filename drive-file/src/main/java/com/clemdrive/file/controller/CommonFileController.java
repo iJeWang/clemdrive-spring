@@ -14,7 +14,7 @@ import com.clemdrive.file.domain.CommonFile;
 import com.clemdrive.file.domain.FilePermission;
 import com.clemdrive.file.domain.UserFile;
 import com.clemdrive.file.dto.commonfile.CommonFileDTO;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 import com.clemdrive.file.vo.commonfile.CommonFileListVo;
 import com.clemdrive.file.vo.commonfile.CommonFileUser;
 import com.clemdrive.file.vo.file.FileListVO;
@@ -101,8 +101,8 @@ public class CommonFileController {
 
         CommonFile commonFile = commonFileService.getById(commonFileId);
         UserFile userFile = userFileService.getById(commonFile.getUserFileId());
-        QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), filePath, true);
-        IPage<FileListVO> fileList = userFileService.userFileList(userFile.getUserId(), qiwenFile.getPath(), currentPage, pageCount);
+        DriveFile driveFile = new DriveFile(userFile.getFilePath(), filePath, true);
+        IPage<FileListVO> fileList = userFileService.userFileList(userFile.getUserId(), driveFile.getPath(), currentPage, pageCount);
 
         return RestResult.success().data(fileList);
 

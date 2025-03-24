@@ -43,7 +43,7 @@ public class VideoOperation {
 //    public static InputStream thumbnailsImage(InputStream inputStream, File outFile, int width, int height) throws IOException {
 //
 //        if (inputStream == null) {
-//            throw new QiwenException(999999, "Get the video preview. The input stream is null.");
+//            throw new DriveException(999999, "Get the video preview. The input stream is null.");
 //        }
 //        try {
 //            FFmpegFrameGrabber ff = new FFmpegFrameGrabber(inputStream);

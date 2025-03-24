@@ -4,18 +4,18 @@ import cn.hutool.core.util.IdUtil;
 import com.clemdrive.common.util.DateUtil;
 import com.clemdrive.common.util.security.SessionUtil;
 import com.clemdrive.file.domain.UserFile;
-import com.clemdrive.file.io.QiwenFile;
+import com.clemdrive.file.io.DriveFile;
 
-public class QiwenFileUtil {
+public class DriveFileUtil {
 
 
-    public static UserFile getQiwenDir(String userId, String filePath, String fileName) {
+    public static UserFile getDriveDir(String userId, String filePath, String fileName) {
         UserFile userFile = new UserFile();
         userFile.setUserFileId(IdUtil.getSnowflakeNextIdStr());
         userFile.setUserId(userId);
         userFile.setFileId(null);
         userFile.setFileName(fileName);
-        userFile.setFilePath(QiwenFile.formatPath(filePath));
+        userFile.setFilePath(DriveFile.formatPath(filePath));
         userFile.setExtendName(null);
         userFile.setIsDir(1);
         userFile.setUploadTime(DateUtil.getCurrentTime());
@@ -26,13 +26,13 @@ public class QiwenFileUtil {
         return userFile;
     }
 
-    public static UserFile getQiwenFile(String userId, String fileId, String filePath, String fileName, String extendName) {
+    public static UserFile getDriveFile(String userId, String fileId, String filePath, String fileName, String extendName) {
         UserFile userFile = new UserFile();
         userFile.setUserFileId(IdUtil.getSnowflakeNextIdStr());
         userFile.setUserId(userId);
         userFile.setFileId(fileId);
         userFile.setFileName(fileName);
-        userFile.setFilePath(QiwenFile.formatPath(filePath));
+        userFile.setFilePath(DriveFile.formatPath(filePath));
         userFile.setExtendName(extendName);
         userFile.setIsDir(0);
         userFile.setUploadTime(DateUtil.getCurrentTime());
@@ -43,9 +43,9 @@ public class QiwenFileUtil {
         return userFile;
     }
 
-    public static UserFile searchQiwenFileParam(UserFile userFile) {
+    public static UserFile searchDriveFileParam(UserFile userFile) {
         UserFile param = new UserFile();
-        param.setFilePath(QiwenFile.formatPath(userFile.getFilePath()));
+        param.setFilePath(DriveFile.formatPath(userFile.getFilePath()));
         param.setFileName(userFile.getFileName());
         param.setExtendName(userFile.getExtendName());
         param.setDeleteFlag(0);

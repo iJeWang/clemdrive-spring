@@ -1,13 +1,5 @@
 package com.clemdrive.ufop.operation.upload.product;
 
-import com.google.gson.Gson;
-import com.qiniu.common.QiniuException;
-import com.qiniu.http.Response;
-import com.qiniu.storage.Configuration;
-import com.qiniu.storage.UploadManager;
-import com.qiniu.storage.model.DefaultPutRet;
-import com.qiniu.storage.persistent.FileRecorder;
-import com.qiniu.util.Auth;
 import com.clemdrive.common.util.HttpsUtils;
 import com.clemdrive.ufop.config.QiniuyunConfig;
 import com.clemdrive.ufop.constant.StorageTypeEnum;
@@ -17,10 +9,18 @@ import com.clemdrive.ufop.exception.operation.UploadException;
 import com.clemdrive.ufop.operation.upload.Uploader;
 import com.clemdrive.ufop.operation.upload.domain.UploadFile;
 import com.clemdrive.ufop.operation.upload.domain.UploadFileResult;
-import com.clemdrive.ufop.operation.upload.request.QiwenMultipartFile;
+import com.clemdrive.ufop.operation.upload.request.DriveMultipartFile;
 import com.clemdrive.ufop.util.QiniuyunUtils;
 import com.clemdrive.ufop.util.RedisUtil;
 import com.clemdrive.ufop.util.UFOPUtils;
+import com.google.gson.Gson;
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.model.DefaultPutRet;
+import com.qiniu.storage.persistent.FileRecorder;
+import com.qiniu.util.Auth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
@@ -51,39 +51,29 @@ public class QiniuyunKodoUploader extends Uploader {
     public void cancelUpload(UploadFile uploadFile) {
     }
 
-    @Override
-    protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
-
-    }
-
-    @Override
-    protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
-        return null;
-    }
-
-    protected UploadFileResult doUploadFlow(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+    protected UploadFileResult doUploadFlow(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
         UploadFileResult uploadFileResult = new UploadFileResult();
         try {
-            qiwenMultipartFile.getFileUrl(uploadFile.getIdentifier());
-            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
+            driveMultipartFile.getFileUrl(uploadFile.getIdentifier());
+            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), driveMultipartFile.getExtendName());
 
             File tempFile = UFOPUtils.getTempFile(fileUrl);
             File processFile = UFOPUtils.getProcessFile(fileUrl);
 
-            byte[] fileData = qiwenMultipartFile.getUploadBytes();
+            byte[] fileData = driveMultipartFile.getUploadBytes();
 
             writeByteDataToFile(fileData, tempFile, uploadFile);
 
             //判断是否完成文件的传输并进行校验与重命名
             boolean isComplete = checkUploadStatus(uploadFile, processFile);
             uploadFileResult.setFileUrl(fileUrl);
-            uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
-            uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
+            uploadFileResult.setFileName(driveMultipartFile.getFileName());
+            uploadFileResult.setExtendName(driveMultipartFile.getExtendName());
             uploadFileResult.setFileSize(uploadFile.getTotalSize());
             uploadFileResult.setStorageType(StorageTypeEnum.QINIUYUN_KODO);
 
             if (uploadFile.getTotalChunks() == 1) {
-                uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
+                uploadFileResult.setFileSize(driveMultipartFile.getSize());
             }
             uploadFileResult.setIdentifier(uploadFile.getIdentifier());
             if (isComplete) {
@@ -123,6 +113,16 @@ public class QiniuyunKodoUploader extends Uploader {
 
 
         return uploadFileResult;
+    }
+
+    @Override
+    protected void doUploadFileChunk(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
+
+    }
+
+    @Override
+    protected UploadFileResult organizationalResults(DriveMultipartFile driveMultipartFile, UploadFile uploadFile) {
+        return null;
     }
 
 

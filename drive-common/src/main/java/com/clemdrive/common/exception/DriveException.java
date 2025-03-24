@@ -7,26 +7,26 @@ import lombok.Data;
  * 自定义全局异常类
  */
 @Data
-public class QiwenException extends RuntimeException {
+public class DriveException extends RuntimeException {
     private Integer code;
 
-    public QiwenException(String message) {
+    public DriveException(String message) {
         super(message);
         this.code = ResultCodeEnum.UNKNOWN_ERROR.getCode();
     }
 
-    public QiwenException(Integer code, String message) {
+    public DriveException(Integer code, String message) {
         super(message);
         this.code = code;
     }
 
-    public QiwenException(ResultCodeEnum resultCodeEnum) {
+    public DriveException(ResultCodeEnum resultCodeEnum) {
         super(resultCodeEnum.getMessage());
         this.code = resultCodeEnum.getCode();
     }
 
     @Override
     public String toString() {
-        return "QiwenException{" + "code=" + code + ", message=" + this.getMessage() + '}';
+        return "DriveException{" + "code=" + code + ", message=" + this.getMessage() + '}';
     }
 }
