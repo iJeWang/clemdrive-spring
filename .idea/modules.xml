@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/clemdrive.iml" filepath="$PROJECT_DIR$/clemdrive.iml" />
       <module fileurl="file://$PROJECT_DIR$/drive-ufop/drive-ufop.iml" filepath="$PROJECT_DIR$/drive-ufop/drive-ufop.iml" />
     </modules>
   </component>

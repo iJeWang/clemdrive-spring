@@ -4,35 +4,16 @@
 
 UFOP (Unified File Operation Platform) 统一文件操作平台，通过引入该依赖，可以实现文件操作的统一管理
 
-此项目为奇文网盘核心功能，之前有不少人咨询，如何将网盘集成到自己的项目?出于这个目的，就把这块功能剥离出来供大家方便引入，目前实现的主要功能如下：
+此模块为Clem网盘核心功能，主要功能如下：
 
 1. 本地文件上传、下载，删除，预览，重命名，读文件流，写文件流
 2. 阿里云OSS上传，下载，删除，预览，重命名，读文件流，写文件流
 3. FastDFS上传，下载，删除，预览，重命名，读文件流，写文件流
 4. FastDFS+Redis实现集群化部署
 5. 图片支持缩略图预览
-
-#### 软件架构
-
-#### 安装教程
-
-mvn clean install
-
 #### 使用说明
 
-1. 引入pom依赖
-
-这里的具体版本号建议引入最新版本
-
-```xml
-<dependency>
-    <groupId>com.clemdrive</groupId>
-    <artifactId>ufop-spring-boot-starter</artifactId>
-    <version>{new version}<version>
-</dependency>
-```
-
-2. application.properties配置文件说明
+1. application.properties配置文件说明
 
 配置磁盘存储方式, 0-本地存储， 1-阿里云OSS存储， 2-fastDFS存储, 3-minio存储, 4-七牛云KODO对象存储
 
@@ -66,9 +47,6 @@ fdfs.thumb-image.width=150
 fdfs.thumb-image.height=150
 fdfs.tracker-list=127.0.0.1:22122 
 ```
-
-其他存储方式可在下方链接查看
-https://pan.clemdrive.com/docs/config/#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F%E9%85%8D%E7%BD%AE
 
 除了0-本地存储外，其他存储方式需要配置redis信息
 

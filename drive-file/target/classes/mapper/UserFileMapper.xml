@@ -6,7 +6,8 @@
 
 <mapper namespace="com.clemdrive.file.mapper.UserFileMapper">
 
-    <select id="selectPageVo" parameterType="com.clemdrive.file.domain.UserFile" resultType="com.clemdrive.file.vo.file.FileListVO">
+    <select id="selectPageVo" parameterType="com.clemdrive.file.domain.UserFile"
+            resultType="com.clemdrive.file.vo.file.FileListVO">
         select * from userfile a
         left join image on a.fileId = image.fileId
         left join file on file.fileId = a.fileId
@@ -17,7 +18,8 @@
                         extendName in (select fileExtendName from fileclassification where fileTypeId = #{fileTypeId})
                     </when>
                     <otherwise>
-                        extendName not in (select fileExtendName from fileclassification where fileTypeId in (1, 2, 3, 4))
+                        extendName not in (select fileExtendName from fileclassification where fileTypeId in (1, 2, 3,
+                        4))
                     </otherwise>
                 </choose>
                 and a.isDir = 0
@@ -44,7 +46,8 @@
 
     <select id="selectUserFileByLikeRightFilePath" resultType="com.clemdrive.file.domain.UserFile">
         select * from userfile
-        where (filePath = #{filePath} or filePath like concat(#{filePath},'/%')) and userId = #{userId} and deleteFlag = 0
+        where (filePath = #{filePath} or filePath like concat(#{filePath},'/%')) and userId = #{userId} and deleteFlag =
+        0
     </select>
 
     <select id="selectStorageSizeByUserId" resultType="java.lang.Long" parameterType="java.lang.String">

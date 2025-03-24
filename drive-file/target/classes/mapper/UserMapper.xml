@@ -6,8 +6,9 @@
 
 <mapper namespace="com.clemdrive.file.mapper.UserMapper">
 
-    <insert id="insertUser" parameterType="com.clemdrive.file.domain.user.UserBean" useGeneratedKeys="true" keyProperty="userId">
-        INSERT INTO user (userId, username, salt, PASSWORD,  telephone, sex, imageUrl, registerTime, available)
+    <insert id="insertUser" parameterType="com.clemdrive.file.domain.user.UserBean" useGeneratedKeys="true"
+            keyProperty="userId">
+        INSERT INTO user (userId, username, salt, PASSWORD, telephone, sex, imageUrl, registerTime, available)
         VALUES (#{userId}, #{username},#{salt}, #{password}, #{telephone}, #{sex}, #{imageUrl}, #{registerTime}, 1);
     </insert>
 

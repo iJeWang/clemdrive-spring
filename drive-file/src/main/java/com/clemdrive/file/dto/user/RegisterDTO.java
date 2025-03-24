@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 @Schema(name = "用户注册DTO", required = true)
 public class RegisterDTO {
 
-    @Schema(description = "用户名", required = true, example = "奇文网盘")
+    @Schema(description = "用户名", required = true, example = "Clem网盘")
     @NotBlank(message = "用户名不能为空")
     @Size(min = 1, max = 20, message = "用户名最少1位，最多20位")
     private String username;
